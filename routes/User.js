@@ -63,6 +63,7 @@ route.patch('/users/:id', auth, async (req, res) => {
         if (!user) {
             return res.status(404).send()
         }
+        await  user.populate('products').execPopulate()
         res.send(user)
     } catch (error) {
         res.send(error);

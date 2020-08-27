@@ -18,8 +18,8 @@ var UserSchema = new Schema({
         type: String,
         required: true,
     },
-    avatar:{
-        type:Buffer,
+    avatar: {
+        type: Buffer,
     },
     tokens: [{
         token: {
@@ -34,6 +34,12 @@ var UserSchema = new Schema({
 
 
 );
+
+UserSchema.virtual('Products', {
+    ref: 'Product',
+    localField: '_id',
+    foreignField: 'owner'
+})
 
 //delete User data res
 UserSchema.methods.toJSON = function () {
@@ -60,30 +66,30 @@ UserSchema.statics.findCredtional = async function (email, password) {
     //check for user
     const user = await User.findOne({ email: email });
     if (!user) {
-      throw new Error("This Name Not Existed")
+        throw new Error("This Name Not Existed")
     }
     //check user password
     const compare = await bcrypt.compare(password, user.password);
     if (!compare) {
-      throw new Error("Error In Login Plz Check Your Email && Password");
+        throw new Error("Error In Login Plz Check Your Email && Password");
     }
-  
+
     return user;
-  }
-  
+}
+
 
 //genrate Token for user
 UserSchema.methods.generateToken = async function () {
     const user = this;
-  
+
     const token = jwt.sign({ _id: user._id.toString() }, "UserToken");
     if (!token) {
-      throw new Error("Error in Login")
+        throw new Error("Error in Login")
     }
     user.tokens = user.tokens.concat({ token })
     await user.save()
     return token
-  }
-  
+}
+
 var User = mongoose.model('User', UserSchema);
 module.exports = User;
